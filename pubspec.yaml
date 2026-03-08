@@ -15,6 +15,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  flutter_slidable: ^3.0.0
+  
   # Scanner code-barres
   mobile_scanner: ^5.0.0
 

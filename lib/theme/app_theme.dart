@@ -36,7 +36,9 @@ class AppTheme {
     ),
     cardTheme: const CardThemeData(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
       color: Colors.white,
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -62,13 +64,17 @@ class AppTheme {
         foregroundColor: Colors.white,
         elevation: 2,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14),
       ),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
     ),
   );
 
@@ -95,8 +101,10 @@ class AppTheme {
     ),
     cardTheme: const CardThemeData(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: const Color(0xFF334155),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      color: Color(0xFF334155),
     ),
   );
 }

@@ -16,6 +16,10 @@ dependencies:
     sdk: flutter
 
   flutter_slidable: ^3.0.0
+
+  flutter_staggered_animations: ^1.1.0
+
+  intl: ^0.20.2
   
   # Scanner code-barres
   mobile_scanner: ^5.0.0

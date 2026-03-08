@@ -33,7 +33,7 @@ dependencies:
   excel: ^2.1.0
 
   # Sélection de fichiers
-  file_picker: ^6.1.1
+  file_picker: ^8.0.0
 
   # Chemins fichiers
   path_provider: ^2.1.2

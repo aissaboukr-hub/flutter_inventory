@@ -128,7 +128,7 @@ class ExcelService {
     required List<InventoryEntry> entries,
     required List<InventoryTotal> totals,
   }) async {
-    final excel = Excel.createExcel();
+    final Excel excel = Excel.createExcel();
 
     // Feuille Historique
     _buildHistorySheet(excel, entries);
@@ -245,11 +245,10 @@ class ExcelService {
     sheet.setColumnWidth(4, 15);
   }
 
-  static void _setCellWithStyle(Excel sheet, int col, int row, CellValue value, ExcelColor bg) {
-    // ignore: unused_local_variable
-    final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row));
-    cell.value = value;
-  }
+  static void _setCellWithStyle(Sheet sheet, int col, int row, dynamic value, ExcelColor bg) {
+  final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row));
+  cell.value = value;
+}
 
   static Future<void> shareFile(File file) async {
     await Share.shareXFiles([XFile(file.path)], subject: 'Export Inventaire');

@@ -86,11 +86,7 @@ class ExcelService {
         continue;
       }
 
-      final startRow = 1;
-
-      for (int r = startRow;
-          r < sheet.rows.length && r < _maxRows;
-          r++) {
+      for (int r = 1; r < sheet.rows.length && r < _maxRows; r++) {
         final row = sheet.rows[r];
 
         if (row.isEmpty) continue;
@@ -129,8 +125,14 @@ class ExcelService {
       break;
     }
 
-    return (products,
-        ImportResult(imported: products.length, errors: errorCount, errorMessages: errors));
+    return (
+      products,
+      ImportResult(
+        imported: products.length,
+        errors: errorCount,
+        errorMessages: errors,
+      )
+    );
   }
 
   static bool _matchesCode(String h) =>
@@ -206,7 +208,7 @@ class ExcelService {
     for (int i = 0; i < headers.length; i++) {
       sheet
           .cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 0))
-          .value = TextCellValue(headers[i]);
+          .value = headers[i];
     }
 
     for (int r = 0; r < entries.length; r++) {
@@ -214,34 +216,21 @@ class ExcelService {
 
       final row = r + 1;
 
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: row))
-          .value = TextCellValue(e.productCode);
+      _setCell(sheet, 0, row, e.productCode);
+      _setCell(sheet, 1, row, e.productDesignation);
+      _setCell(sheet, 2, row, e.productBarcode);
+      _setCell(sheet, 3, row, e.quantity);
 
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: row))
-          .value = TextCellValue(e.productDesignation);
+      _setCell(
+        sheet,
+        4,
+        row,
+        DateFormat('dd/MM/yyyy HH:mm').format(e.scannedAt),
+      );
 
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: row))
-          .value = TextCellValue(e.productBarcode);
+      _setCell(sheet, 5, row, e.isManual ? 'Oui' : 'Non');
 
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: row))
-          .value = DoubleCellValue(e.quantity);
-
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: row))
-          .value = TextCellValue(
-              DateFormat('dd/MM/yyyy HH:mm').format(e.scannedAt));
-
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: row))
-          .value = TextCellValue(e.isManual ? 'Oui' : 'Non');
-
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: row))
-          .value = TextCellValue(e.note ?? '');
+      _setCell(sheet, 6, row, e.note ?? '');
     }
   }
 
@@ -251,9 +240,7 @@ class ExcelService {
       InventoryList list) {
     final sheet = excel['Totaux'];
 
-    sheet
-        .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: 0))
-        .value = TextCellValue('Inventaire : ${list.name}');
+    _setCell(sheet, 0, 0, 'Inventaire : ${list.name}');
 
     final headers = [
       'Code',
@@ -264,26 +251,22 @@ class ExcelService {
     ];
 
     for (int i = 0; i < headers.length; i++) {
-      sheet
-          .cell(CellIndex.indexByColumnRow(columnIndex: i, rowIndex: 2))
-          .value = TextCellValue(headers[i]);
+      _setCell(sheet, i, 2, headers[i]);
     }
 
     for (int r = 0; r < totals.length; r++) {
       final t = totals[r];
-
       final row = r + 3;
 
-      _setCell(sheet, 0, row, TextCellValue(t.productCode));
-      _setCell(sheet, 1, row, TextCellValue(t.productDesignation));
-      _setCell(sheet, 2, row, TextCellValue(t.productBarcode));
-      _setCell(sheet, 3, row, DoubleCellValue(t.totalQuantity));
-      _setCell(sheet, 4, row, IntCellValue(t.entryCount));
+      _setCell(sheet, 0, row, t.productCode);
+      _setCell(sheet, 1, row, t.productDesignation);
+      _setCell(sheet, 2, row, t.productBarcode);
+      _setCell(sheet, 3, row, t.totalQuantity);
+      _setCell(sheet, 4, row, t.entryCount);
     }
   }
 
-  static void _setCell(
-      Sheet sheet, int col, int row, dynamic value) {
+  static void _setCell(Sheet sheet, int col, int row, dynamic value) {
     final cell =
         sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row));
 
@@ -291,8 +274,10 @@ class ExcelService {
   }
 
   static Future<void> shareFile(File file) async {
-    await Share.shareXFiles([XFile(file.path)],
-        subject: 'Export Inventaire');
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      subject: 'Export Inventaire',
+    );
   }
 
   static String _sanitize(String name) {

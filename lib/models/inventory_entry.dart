@@ -25,54 +25,76 @@ class InventoryEntry {
     this.isManual = false,
   }) : scannedAt = scannedAt ?? DateTime.now();
 
-  Map<String, dynamic> toMap() => {
-    'id': id,
-    'inventory_list_id': inventoryListId,
-    'product_id': productId,
-    'product_code': productCode,
-    'product_designation': productDesignation,
-    'product_barcode': productBarcode,
-    'quantity': quantity,
-    'scanned_at': scannedAt.toIso8601String(),
-    'note': note,
-    'is_manual': isManual ? 1 : 0,
-  };
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'inventory_list_id': inventoryListId,
+      'product_id': productId,
+      'product_code': productCode,
+      'product_designation': productDesignation,
+      'product_barcode': productBarcode,
+      'quantity': quantity,
+      'scanned_at': scannedAt.toIso8601String(),
+      'note': note,
+      'is_manual': isManual ? 1 : 0,
+    };
+  }
 
-  factory InventoryEntry.fromMap(Map<String, dynamic> map) => InventoryEntry(
-    id: map['id'],
-    inventoryListId: map['inventory_list_id'] ?? 0,
-    productId: map['product_id'],
-    productCode: map['product_code'] ?? '',
-    productDesignation: map['product_designation'] ?? '',
-    productBarcode: map['product_barcode'] ?? '',
-    quantity: (map['quantity'] ?? 0).toDouble(),
-    scannedAt: DateTime.tryParse(map['scanned_at'] ?? '') ?? DateTime.now(),
-    note: map['note'],
-    isManual: (map['is_manual'] ?? 0) == 1,
-  );
+  factory InventoryEntry.fromMap(Map<String, dynamic> map) {
+    return InventoryEntry(
+      id: map['id'],
+      inventoryListId: map['inventory_list_id'] ?? 0,
+      productId: map['product_id'],
+      productCode: map['product_code'] ?? '',
+      productDesignation: map['product_designation'] ?? '',
+      productBarcode: map['product_barcode'] ?? '',
+      quantity: (map['quantity'] ?? 0).toDouble(),
+      scannedAt: _parseDate(map['scanned_at']),
+      note: map['note'],
+      isManual: (map['is_manual'] ?? 0) == 1,
+    );
+  }
 
-  factory InventoryEntry.fromProduct(Product product, int listId, double qty) =>
-      InventoryEntry(
-        inventoryListId: listId,
-        productId: product.id,
-        productCode: product.code,
-        productDesignation: product.designation,
-        productBarcode: product.barcode,
-        quantity: qty,
-      );
+  /// Parse sécurisé des dates
+  static DateTime _parseDate(dynamic value) {
+    if (value == null) return DateTime.now();
 
-  InventoryEntry copyWith({double? quantity, String? note}) => InventoryEntry(
-    id: id,
-    inventoryListId: inventoryListId,
-    productId: productId,
-    productCode: productCode,
-    productDesignation: productDesignation,
-    productBarcode: productBarcode,
-    quantity: quantity ?? this.quantity,
-    scannedAt: scannedAt,
-    note: note ?? this.note,
-    isManual: isManual,
-  );
+    if (value is String) {
+      return DateTime.tryParse(value) ?? DateTime.now();
+    }
+
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+
+    return DateTime.now();
+  }
+
+  factory InventoryEntry.fromProduct(Product product, int listId, double qty) {
+    return InventoryEntry(
+      inventoryListId: listId,
+      productId: product.id,
+      productCode: product.code,
+      productDesignation: product.designation,
+      productBarcode: product.barcode,
+      quantity: qty,
+    );
+  }
+
+  InventoryEntry copyWith({double? quantity, String? note}) {
+    return InventoryEntry(
+      id: id,
+      inventoryListId: inventoryListId,
+      productId: productId,
+      productCode: productCode,
+      productDesignation: productDesignation,
+      productBarcode: productBarcode,
+      quantity: quantity ?? this.quantity,
+      scannedAt: scannedAt,
+      note: note ?? this.note,
+      isManual: isManual,
+    );
+  }
 }
 
 /// Totaux agrégés par produit

@@ -7,6 +7,7 @@ import 'package:flutter_inventory/models/inventory_list.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 class ImportResult {
   final int imported;
@@ -43,65 +44,67 @@ class ExcelService {
     final file = result.files.first;
     final bytes = file.bytes ?? await File(file.path!).readAsBytes();
 
-    return _parseExcelBytes(bytes);
+    return compute(_parseExcelBytesIsolate, bytes);
   }
 
-  static Future<(List<Product>, ImportResult)> _parseExcelBytes(
-      List<int> bytes) async {
-    final excel = Excel.decodeBytes(bytes);
+  static (List<Product>, ImportResult) _parseExcelBytesIsolate(
+    List<int> bytes) {
 
-    final products = <Product>[];
-    final errors = <String>[];
-    int errorCount = 0;
+  final excel = Excel.decodeBytes(bytes);
 
-    for (final tableName in excel.tables.keys) {
-      final sheet = excel.tables[tableName]!;
+  final products = <Product>[];
+  final errors = <String>[];
+  int errorCount = 0;
 
-      if (sheet.rows.isEmpty) continue;
-
-      final headerRow = sheet.rows.first;
-
-      int codeIdx = 0;
-      int designationIdx = 1;
-      int barcodeIdx = 2;
-
-      for (int r = 1; r < sheet.rows.length && r < _maxRows; r++) {
-        final row = sheet.rows[r];
-        if (row.isEmpty) continue;
-
-        final code = row.length > codeIdx
-            ? (row[codeIdx]?.value?.toString().trim() ?? '')
-            : '';
-
-        final designation = row.length > designationIdx
-            ? (row[designationIdx]?.value?.toString().trim() ?? '')
-            : '';
-
-        final barcode = row.length > barcodeIdx
-            ? (row[barcodeIdx]?.value?.toString().trim() ?? '')
-            : '';
-
-        if (designation.isEmpty) continue;
-
-        products.add(Product(
-          code: code.isEmpty ? 'AUTO_${r + 1}' : code,
-          designation: designation,
-          barcode: barcode,
-        ));
-      }
-
-      break;
-    }
-
+  if (excel.tables.isEmpty) {
     return (
       products,
-      ImportResult(
-        imported: products.length,
-        errors: errorCount,
-        errorMessages: errors,
-      )
+      ImportResult(imported: 0, errors: 0, errorMessages: [])
     );
   }
+
+  final sheet = excel.tables.values.first;
+
+  int codeIdx = 0;
+  int designationIdx = 1;
+  int barcodeIdx = 2;
+
+  for (int r = 1; r < sheet!.rows.length && r < _maxRows; r++) {
+
+    final row = sheet.rows[r];
+
+    if (row.isEmpty) continue;
+
+    final code = row.length > codeIdx
+        ? (row[codeIdx]?.value?.toString().trim() ?? '')
+        : '';
+
+    final designation = row.length > designationIdx
+        ? (row[designationIdx]?.value?.toString().trim() ?? '')
+        : '';
+
+    final barcode = row.length > barcodeIdx
+        ? (row[barcodeIdx]?.value?.toString().trim() ?? '')
+        : '';
+
+    if (designation.isEmpty) continue;
+
+    products.add(Product(
+      code: code.isEmpty ? 'AUTO_${r + 1}' : code,
+      designation: designation,
+      barcode: barcode,
+    ));
+  }
+
+  return (
+    products,
+    ImportResult(
+      imported: products.length,
+      errors: errorCount,
+      errorMessages: errors,
+    )
+  );
+}
 
   /// ================================
   /// EXPORT INVENTAIRE
